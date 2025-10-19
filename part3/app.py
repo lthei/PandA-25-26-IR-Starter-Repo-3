@@ -12,6 +12,15 @@ def find_spans(text: str, pattern: str):
 
     # ToDo 1: Copy your solution from the last exercise
 
+    if not pattern or len(pattern) > len(text):
+        return spans
+
+    pat_len = len(pattern)
+    text_len = len(text)
+
+    for i in range(text_len - pat_len + 1):
+        if text[i:i + pat_len] == pattern:
+            spans.append((i, i + pat_len))
     return spans
 
 
@@ -78,8 +87,34 @@ def combine_results(result1, result2):
     #         - the spans in the title and
     #         - the spans found in the individual lines
     #  Returned the combined search result
-    combined = result1
 
+    # merged_title_spans
+    if result1["title_spans"] and result2["title_spans"]: # if both are not empty (there are matches in both)
+        merged_title_spans = result1["title_spans"] + result2["title_spans"] # add the spans
+    else:
+        merged_title_spans = [] # else return an empty list
+
+    # merged_line_matches
+    merged_line_matches = []
+    for line1 in result1["line_matches"]: # outer loop for result 1
+        for line2 in result2["line_matches"]: # inner loop result 2
+            if line1["line_no"] == line2["line_no"]: # if line numbers match (line contains both words)
+                merged_line_matches.append({
+                    "line_no": line1["line_no"], # append line number (same for both)
+                    "text": line1["text"], # append text (same for both)
+                    "spans": line1["spans"] + line2["spans"] # add spans
+                })
+
+    # total
+    total = len(merged_title_spans) + sum(len(lm["spans"]) for lm in merged_line_matches) # recalculate matches (see line 62)
+
+    # combined (new dictionary with the same keys as results but with the merged values)
+    combined = {
+    "title": result1["title"], # no combination necessary (same title)
+    "title_spans": merged_title_spans,
+    "line_matches": merged_line_matches,
+    "matches": total
+    }
     return combined
 
 
@@ -119,7 +154,7 @@ def main() -> None:
         combined_results = []
 
         #  ToDo 2) Split the raw input string into words using a built-in method of string
-        words = raw #  ... your code here ...
+        words = raw.split() # .split divides the string by any whitespace (by default)
 
         for word in words:
             # Searching for the word in all sonnets
