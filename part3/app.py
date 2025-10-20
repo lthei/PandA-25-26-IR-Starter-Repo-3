@@ -95,20 +95,20 @@ def combine_results(result1, result2):
         merged_title_spans = [] # else return an empty list
 
     # merged_line_matches
-    merged_line_matches = []
-    for line1 in result1["line_matches"]: # outer loop for result 1
-        for line2 in result2["line_matches"]: # inner loop result 2
+    merged_line_matches = [] # empty list for merged line matches
+    for line1 in result1["line_matches"]: # outer loop for each line containing search term 1
+        for line2 in result2["line_matches"]: # inner loop for each line containing search term 2
             if line1["line_no"] == line2["line_no"]: # if line numbers match (line contains both words)
                 merged_line_matches.append({
-                    "line_no": line1["line_no"], # append line number (same for both)
-                    "text": line1["text"], # append text (same for both)
-                    "spans": line1["spans"] + line2["spans"] # add spans
+                    "line_no": line1["line_no"], # append line number (same for both) to list
+                    "text": line1["text"], # append text (same for both) to list
+                    "spans": line1["spans"] + line2["spans"] # add combined spans to list
                 })
 
     # total
     total = len(merged_title_spans) + sum(len(lm["spans"]) for lm in merged_line_matches) # recalculate matches (see line 62)
 
-    # combined (new dictionary with the same keys as results but with the merged values)
+    # combined (new dictionary with the same keys as "results" but with the merged values from above)
     combined = {
     "title": result1["title"], # no combination necessary (same title)
     "title_spans": merged_title_spans,
