@@ -89,21 +89,23 @@ def combine_results(result1, result2):
     #  Returned the combined search result
 
     # merged_title_spans
-    if result1["title_spans"] and result2["title_spans"]: # if both are not empty (there are matches in both)
-        merged_title_spans = result1["title_spans"] + result2["title_spans"] # add the spans
-    else:
-        merged_title_spans = [] # else return an empty list
+    merged_title_spans = result1["title_spans"] + result2["title_spans"] # add the spans
+
 
     # merged_line_matches
-    merged_line_matches = [] # empty list for merged line matches
-    for line1 in result1["line_matches"]: # outer loop for each line containing search term 1
-        for line2 in result2["line_matches"]: # inner loop for each line containing search term 2
-            if line1["line_no"] == line2["line_no"]: # if line numbers match (line contains both words)
-                merged_line_matches.append({
-                    "line_no": line1["line_no"], # append line number (same for both) to list
-                    "text": line1["text"], # append text (same for both) to list
-                    "spans": line1["spans"] + line2["spans"] # add combined spans to list
-                })
+
+    # copy all line matches from result1
+    merged_line_matches = result1["line_matches"].copy()
+
+    # add or merge lines from result2
+    for line2 in result2["line_matches"]: # loop through every line that matched the second result
+        for line1 in merged_line_matches: # and check against every line in the merged list
+            if line1["line_no"] == line2["line_no"]: # if line number matches (line contains both search terms)
+                line1["spans"] += line2["spans"] # add spans
+                break
+        else: # else add the line to the list
+            merged_line_matches.append(line2)
+
 
     # total
     total = len(merged_title_spans) + sum(len(lm["spans"]) for lm in merged_line_matches) # recalculate matches (see line 62)
