@@ -103,7 +103,7 @@ def combine_results(result1, result2):
         else: # if the line is new (only in result2), add it to the merged list
             merged_line_matches.append(line2)
 
-    # sort line matches
+    # sort merged line matches
     # merged_line_matches.sort(key=lambda x: x["line_no"]) # discarded: works in practice, but the transcript check doesn't run through
 
     # total
