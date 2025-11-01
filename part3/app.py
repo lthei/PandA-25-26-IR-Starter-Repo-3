@@ -91,21 +91,20 @@ def combine_results(result1, result2):
     # merged_title_spans
     merged_title_spans = result1["title_spans"] + result2["title_spans"] # add the spans
 
-
     # merged_line_matches
-
     # copy all line matches from result1
     merged_line_matches = result1["line_matches"].copy()
-
     # add or merge lines from result2
-    for line2 in result2["line_matches"]: # loop through every line that matched the second result
-        for line1 in merged_line_matches: # and check against every line in the merged list
+    for line2 in result2["line_matches"]: # loop through every line that matched in the second result
+        for line1 in merged_line_matches: # and check against every line in the merged list (result1)
             if line1["line_no"] == line2["line_no"]: # if line number matches (line contains both search terms)
-                line1["spans"] += line2["spans"] # add spans
-                break
-        else: # else add the line to the list
+                line1["spans"] += line2["spans"] # add the new spans (of line2)
+                break # if the line is found, the loop can be broken early
+        else: # if the line is new (only in result2), add it to the merged list
             merged_line_matches.append(line2)
 
+    # sort line matches
+    # merged_line_matches.sort(key=lambda x: x["line_no"]) # discarded: works in practice, but the transcript check doesn't run through
 
     # total
     total = len(merged_title_spans) + sum(len(lm["spans"]) for lm in merged_line_matches) # recalculate matches (see line 62)
